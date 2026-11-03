@@ -1,0 +1,195 @@
+backend - .\.venv\Scripts\python.exe app.py
+
+frontend - npm run dev
+
+
+
+
+# CarePulse project review guide
+
+## 1. A short project explanation
+
+CarePulse is a healthcare dashboard built with **React and Vite** on the frontend, a **Flask REST API** in the backend, and **MySQL** for persistent records. The browser does not connect directly to MySQL. It sends HTTP requests to Flask, which checks authentication and ownership, runs SQL through the database helper, and returns JSON for the React dashboard to display.
+
+You can describe the data flow like this:
+
+```text
+React page → frontend API service → Flask route → authentication/ownership check
+           → backend DB helper → MySQL
+           ← JSON response       ← query result
+```
+
+## 2. Where each part of the code lives
+
+| Part | Main files | What it does |
+|---|---|---|
+| Application entry and routes | [App.jsx](C:/Users/gamex/Desktop/CarePulse/my-site/src/App.jsx) | Starts the React application and connects its routes and views. |
+| Login and registration | [auth.js](C:/Users/gamex/Desktop/CarePulse/my-site/src/services/auth.js), [auth_routes.py](C:/Users/gamex/Desktop/CarePulse/backend/routes/auth_routes.py) | The frontend calls Flask login/register endpoints. Flask checks credentials, creates accounts, and returns a signed token. |
+| Frontend API communication | [api.js](C:/Users/gamex/Desktop/CarePulse/my-site/src/services/api.js) | Sets the backend API URL, sends requests, and includes the bearer token for protected patient requests. |
+| Backend startup and route registration | [app.py](C:/Users/gamex/Desktop/CarePulse/backend/app.py) | Creates the Flask application and registers route groups under `/api`. |
+| MySQL connection and SQL helpers | [db.py](C:/Users/gamex/Desktop/CarePulse/backend/db.py) | Loads connection settings and provides pooled connections and query/write/transaction helpers. |
+| Patient dashboard and records | [patient_routes.py](C:/Users/gamex/Desktop/CarePulse/backend/routes/patient_routes.py) | Loads dashboard data and handles patient profile, vitals, labs, lifestyle, and recommendation actions. |
+| ML risk predictions | [prediction_routes.py](C:/Users/gamex/Desktop/CarePulse/backend/routes/prediction_routes.py) and `backend/ml/` | Runs a risk assessment and, for authenticated users, saves the assessment and factors. |
+| Recommendation generation | [recommendation_service.py](C:/Users/gamex/Desktop/CarePulse/backend/recommendation_service.py) | Builds educational recommendations from actual assessments or recorded measurements. |
+| Table definitions and relationships | [schema.sql](C:/Users/gamex/Desktop/CarePulse/backend/schema.sql) | Defines the database tables, keys, indexes, and foreign-key relationships. |
+| Dashboard composition | [PatientDashboard.jsx](C:/Users/gamex/Desktop/CarePulse/my-site/src/components/dashboard/PatientDashboard.jsx) | Loads dashboard data and arranges the dashboard sections. |
+| Dashboard display sections | `my-site/src/components/dashboard/` | Components display profile, biometrics, risk assessments, charts, recommendations, appointments, and activity. |
+
+Within the dashboard folder, for example, `HealthOverview.jsx` displays profile and health-index information, `BiometricMatrix.jsx` displays measurements, `RiskIntelligence.jsx` displays assessments, `RecommendationsPreview.jsx` displays saved recommendations, and `UpcomingCare.jsx` displays appointment information and its empty state.
+
+## 3. How MySQL is connected
+
+The connection logic is in `backend/db.py`:
+
+1. It loads environment configuration using `python-dotenv`. The connection settings are read from environment variables such as `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`. The code does not require those values to be printed or embedded in frontend code.
+2. `get_connection()` creates a MySQL connection pool named `carepulse_pool` with a pool size of five. If pool creation or use raises a MySQL connector error, it tries a direct connector connection.
+3. `execute_query()` runs a `SELECT` and returns a list of dictionaries. `execute_one()` returns a single dictionary or `None`.
+4. `execute_write()` runs a write statement. `execute_transaction()` groups related statements and commits them together; if an error occurs, it rolls back the transaction.
+
+The SQL uses `%s` placeholders and passes the values separately. That is parameterized SQL: values are not assembled into the SQL string directly.
+
+**Review-ready wording:** “The database connection is backend-only. Flask gets its connection settings from the environment and uses the shared `db.py` helper. Routes use parameterized queries, and related writes use transactions so the records are saved together.”
+
+## 4. What the database stores
+
+The table definitions are in `backend/schema.sql`. The main groups are:
+
+- **Account and identity:** `user` stores account details and password hashes; `patient` stores the patient record linked to a user. `health_profile` stores conditions, allergies, medications, and family history. The password hash is not the original password.
+- **Measurements and tests:** `vitals` stores timestamped readings. `lab_report` stores report-level information, and `lab_result` stores individual results linked to a report and patient.
+- **Assessments:** `disease_model` identifies prediction models; `prediction` stores a patient’s assessment result; `prediction_factor` stores the factors associated with that assessment. `symptom_check` stores symptom-assessment records when persisted for a patient.
+- **Care coordination:** `doctor` and `appointment` represent clinicians and scheduled appointments. `recommendation` stores recommendations, while `recommendation_action` stores their actionable steps and completion state.
+- **History and sessions:** `lifestyle_log` stores recorded lifestyle history. `user_session` is defined in the schema; the current login code issues stateless JWTs and does not use this table as its login-session store.
+
+Examples of relationships in the schema:
+
+- A patient record references its account through `patient.user_id`.
+- A patient can have multiple vital readings and lab results.
+- A lab report can have multiple lab results.
+- A prediction can have multiple prediction factors.
+- An appointment references a patient and a doctor.
+- A recommendation can have multiple actions.
+
+The dashboard is assembled from these related records. Some values are **calculated when the API responds**: for example, the backend derives age from date of birth and derives BMI from height and weight. The Health Index is also calculated from available inputs; it is not a separate stored measurement.
+
+## 5. How authentication fits into data access
+
+On real backend login, Flask verifies the submitted password against the stored hash and returns a signed JWT. The frontend stores the returned token through `auth.js`. Protected API calls in `api.js` send it in the `Authorization: Bearer …` header.
+
+The backend’s `token_required` decorator in `auth_utils.py` verifies the token and provides the user identity to the route. Patient dashboard routes also check ownership before returning records. Thus, the browser sends a user ID as part of the route, but the backend must verify that it belongs to the authenticated user.
+
+The project also has explicitly separate demo and local-development paths in the frontend. Those paths are not the same as loading a real patient’s MySQL data.
+
+## 6. Safe manual data retrieval
+
+You can run these **read-only** examples in MySQL Workbench after connecting to the CarePulse database. Replace `YOUR_EMAIL` or `YOUR_PATIENT_ID` with your own values. Do not share screenshots containing personal details.
+
+```sql
+USE carepulse;
+
+SHOW TABLES;
+
+DESCRIBE patient;
+DESCRIBE vitals;
+DESCRIBE lab_result;
+```
+
+Find your account’s patient ID without retrieving password fields:
+
+```sql
+SELECT u.user_id, u.full_name, p.patient_id
+FROM `user` AS u
+JOIN patient AS p ON p.user_id = u.user_id
+WHERE u.email = 'YOUR_EMAIL';
+```
+
+Retrieve recent vital readings for that patient:
+
+```sql
+SELECT recorded_at, systolic_bp, diastolic_bp, heart_rate,
+       temperature, respiratory_rate
+FROM vitals
+WHERE patient_id = 'YOUR_PATIENT_ID'
+ORDER BY recorded_at DESC
+LIMIT 10;
+```
+
+Retrieve recent lab results:
+
+```sql
+SELECT r.report_date, lr.test_name, lr.result_value, lr.unit,
+       lr.reference_range, lr.is_abnormal
+FROM lab_result AS lr
+LEFT JOIN lab_report AS r ON r.lab_id = lr.lab_id
+WHERE lr.patient_id = 'YOUR_PATIENT_ID'
+ORDER BY COALESCE(r.report_date, DATE(lr.created_at)) DESC,
+         lr.created_at DESC
+LIMIT 20;
+```
+
+Check counts by recommendation status for that patient:
+
+```sql
+SELECT status, COUNT(*) AS total
+FROM recommendation
+WHERE patient_id = 'YOUR_PATIENT_ID'
+GROUP BY status;
+```
+
+Check upcoming appointments without changing anything:
+
+```sql
+SELECT a.appointment_date, a.appointment_type, a.location, a.status,
+       d.full_name AS doctor_name
+FROM appointment AS a
+LEFT JOIN doctor AS d ON d.doctor_id = a.doctor_id
+WHERE a.patient_id = 'YOUR_PATIENT_ID'
+  AND a.appointment_date >= NOW()
+ORDER BY a.appointment_date;
+```
+
+These queries only read records. Avoid `INSERT`, `UPDATE`, `DELETE`, schema scripts, or seed scripts during a review demonstration.
+
+## 7. Dashboard request example
+
+The frontend dashboard service calls:
+
+```text
+GET http://127.0.0.1:5000/api/patients/<userId>/dashboard
+Authorization: Bearer <your signed-in token>
+```
+
+The Flask handler in `backend/routes/patient_routes.py` verifies authentication and patient ownership, queries the patient’s profile and related records, then returns JSON. `PatientDashboard.jsx` loads that payload and passes its sections to the display components.
+
+**Important:** Don’t paste or display the actual bearer token in a report or screenshot. It is an authentication credential.
+
+## 8. Likely review questions
+
+**Why use a backend between React and MySQL?**  
+The backend protects database credentials, validates inputs, enforces authentication and patient ownership, and gives the frontend a controlled API.
+
+**Why use foreign keys?**  
+They maintain relationships between records—for example, preventing a vital from referring to a patient that does not exist.
+
+**Why use a transaction for registration?**  
+Registration inserts both a user and a patient record. The transaction makes those related inserts succeed together or roll back together if one fails.
+
+**How is duplicate email registration prevented?**  
+The `user.email` field has a unique constraint, and the registration route also checks for an existing account before inserting.
+
+**Is the age stored directly?**  
+The patient table stores date of birth. The dashboard derives the current age from that date, so age can change over time without updating an age field.
+
+**Are recommendations the same as appointments?**  
+No. A recommendation is guidance or an action. An appointment is an actual scheduled visit linked to a patient and doctor. The UI should show an empty appointment state when none exists.
+
+**How are recommendations persisted?**  
+Assessment recommendations are built from the real prediction response; measurement reminders are based on saved measurements. The service writes them with associated actions, and the schema has a source-based uniqueness constraint to help prevent duplicates.
+
+**What does “normalization” mean here?**  
+Related concepts are kept in separate tables—for example, reports and their individual results—then connected through keys. This reduces repeated data and supports consistent relationships.
+
+## 9. A simple opening presentation
+
+> “CarePulse is a React dashboard backed by a Flask API and MySQL. The frontend never connects directly to the database. It sends authenticated API requests to Flask, where routes validate the user and ownership, then use a shared database layer with parameterized SQL. MySQL stores accounts, patient profiles, measurements, laboratory results, assessments, recommendations, and appointments in related tables. The dashboard combines those records into a JSON response, while values such as age, BMI, and the Health Index are calculated from stored inputs.”
+
+For tomorrow, it is useful to practice tracing one record end-to-end: choose a recorded vital in the UI, identify its frontend service call, the Flask route, the `vitals` insert, and then retrieve it with the read-only query above.

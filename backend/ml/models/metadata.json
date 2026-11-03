@@ -1,0 +1,94 @@
+{
+  "diabetes": {
+    "model_name": "diabetes",
+    "trained_at": "2026-10-13T16:20:00.356662Z",
+    "train_samples": 1875,
+    "test_samples": 625,
+    "features": [
+      "age",
+      "bmi",
+      "fasting_glucose",
+      "systolic_bp",
+      "physical_activity_days",
+      "family_history"
+    ],
+    "accuracy": 0.7712,
+    "precision": 0.7773,
+    "recall": 0.6982,
+    "f1_score": 0.7357,
+    "roc_auc": 0.8607,
+    "confusion_matrix": [
+      [
+        283,
+        57
+      ],
+      [
+        86,
+        199
+      ]
+    ]
+  },
+  "cardiovascular": {
+    "model_name": "cardiovascular",
+    "trained_at": "2026-10-13T16:20:00.930528Z",
+    "train_samples": 2250,
+    "test_samples": 750,
+    "features": [
+      "age",
+      "gender",
+      "systolic_bp",
+      "diastolic_bp",
+      "total_cholesterol",
+      "hdl",
+      "ldl",
+      "smoking_status",
+      "physical_activity_days",
+      "bmi"
+    ],
+    "accuracy": 0.776,
+    "precision": 0.7313,
+    "recall": 0.6081,
+    "f1_score": 0.664,
+    "roc_auc": 0.8347,
+    "confusion_matrix": [
+      [
+        416,
+        61
+      ],
+      [
+        107,
+        166
+      ]
+    ]
+  },
+  "hypertension": {
+    "model_name": "hypertension",
+    "trained_at": "2026-10-13T16:20:00.952271Z",
+    "train_samples": 1875,
+    "test_samples": 625,
+    "features": [
+      "age",
+      "systolic_bp",
+      "diastolic_bp",
+      "bmi",
+      "physical_activity_days",
+      "smoking_status",
+      "family_history"
+    ],
+    "accuracy": 0.7568,
+    "precision": 0.7509,
+    "recall": 0.7254,
+    "f1_score": 0.7379,
+    "roc_auc": 0.8286,
+    "confusion_matrix": [
+      [
+        259,
+        71
+      ],
+      [
+        81,
+        214
+      ]
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+﻿# Environment and dependencies
+backend/.venv/
+backend/.env
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Frontend build & dependencies
+my-site/node_modules/
+my-site/dist/
+my-site/.env.local
+my-site/.env.*.local
+
+# Backups and temporary files
+my-site-backup-*/
+.claude/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db

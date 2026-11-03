@@ -1,0 +1,287 @@
+:root {
+  /* Core Clinical & Biometric Color Palette */
+  --color-primary: #0891B2;
+  --color-primary-dark: #0E7490;
+  --color-primary-light: #22D3EE;
+  --color-primary-subtle: #ECFEFF;
+  --color-primary-glow: rgba(8, 145, 178, 0.16);
+
+  --color-cyan-accent: #06B6D4;
+  --color-cyan-glow: rgba(6, 182, 212, 0.25);
+  --color-teal-glow: rgba(14, 116, 144, 0.2);
+
+  /* Biological & Genomic Spectrum */
+  --color-dna-adenine: #06B6D4;
+  --color-dna-thymine: #0891B2;
+  --color-dna-guanine: #10B981;
+  --color-dna-cytosine: #3B82F6;
+  --color-synaptic-pulse: #22D3EE;
+  --color-cellular-mesh: rgba(8, 145, 178, 0.08);
+
+  --color-success: #059669;
+  --color-success-dark: #047857;
+  --color-success-subtle: #ECFDF5;
+  --color-success-border: rgba(5, 150, 105, 0.3);
+
+  --color-warning: #D97706;
+  --color-warning-dark: #B45309;
+  --color-warning-subtle: #FFFBEB;
+  --color-warning-border: rgba(217, 119, 6, 0.3);
+
+  --color-emergency: #DC2626;
+  --color-emergency-dark: #B91C1C;
+  --color-emergency-subtle: #FEF2F2;
+  --color-emergency-border: rgba(220, 38, 38, 0.3);
+
+  /* Surfaces & Canvas */
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F1F5F9;
+  --color-surface-tint: #F0FDFA;
+
+  /* Frosted Clinical Glass Elevation Levels */
+  --glass-bg: rgba(255, 255, 255, 0.84);
+  --glass-border: rgba(8, 145, 178, 0.16);
+  --glass-border-glow: rgba(34, 211, 238, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+
+  --glass-level-1: rgba(255, 255, 255, 0.7);
+  --glass-level-2: rgba(255, 255, 255, 0.88);
+  --glass-level-telemetry: rgba(240, 253, 250, 0.9);
+
+  /* Deep Bio-Slate Typography */
+  --color-text: #0F172A;
+  --color-text-muted: #475569;
+  --color-text-light: #64748B;
+
+  /* Borders & Focus Rings */
+  --color-border: #E2E8F0;
+  --color-border-hover: #CBD5E1;
+  --color-border-focus: #0891B2;
+
+  /* Typography */
+  --font-heading: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Elevation & Geometry */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 2px 14px rgba(15, 23, 42, 0.04), 0 0 0 1px var(--color-border);
+  --shadow-glow: 0 0 24px rgba(8, 145, 178, 0.2);
+  --shadow-bio-card: 0 8px 30px rgba(8, 145, 178, 0.08), 0 1px 3px rgba(15, 23, 42, 0.05);
+
+  /* Layout */
+  --max-width: 1240px;
+  --header-height: 76px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  font-weight: 700;
+  line-height: 1.22;
+  margin: 0;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Accessible Focus States */
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+/* Standard Section Padding */
+.section-padding {
+  padding: 96px 0;
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 64px 0;
+  }
+}
+
+/* Section Header Badges */
+.section-header-center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary-dark);
+  border: 1px solid rgba(8, 145, 178, 0.22);
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.badge-checker {
+  background-color: #F0FDFA;
+  color: #0E7490;
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+.badge-journey {
+  background-color: #F8FAFC;
+  color: #0284C7;
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+.badge-capabilities {
+  background-color: #F0FDF4;
+  color: #15803D;
+  border-color: rgba(22, 163, 74, 0.25);
+}
+
+.badge-emergency {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.badge-trust {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+.section-title {
+  font-size: 2.5rem;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  color: var(--color-text);
+}
+
+.section-subtitle {
+  font-size: 1.15rem;
+  color: var(--color-text-muted);
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Biological & Clinical Motion Keyframes */
+@keyframes bioOrbFloat {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(30px, -20px, 0) scale(1.08); }
+  100% { transform: translate3d(-20px, 25px, 0) scale(0.95); }
+}
+
+@keyframes bioSynapticFlow {
+  0% { stroke-dashoffset: 200; opacity: 0.2; }
+  50% { opacity: 0.9; }
+  100% { stroke-dashoffset: 0; opacity: 0.2; }
+}
+
+@keyframes bioPulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.3), 0 0 0 1px rgba(6, 182, 212, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 0 2px rgba(6, 182, 212, 0.4);
+    transform: scale(1.03);
+  }
+}
+
+@keyframes bioCellBreathing {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* Reduced Motion Compliance */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
